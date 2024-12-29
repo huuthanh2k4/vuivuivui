@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Message</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        }
+        .message-box {
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .slideshow {
+            position: relative;
+            width: 500px;
+            height: 600px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 15px;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .slide img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .slide .caption {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #ff758c;
+            animation: fadeIn 2s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        @keyframes fadeIn {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+    .message-box {
+        padding: 20px;
+    }
+    .slideshow {
+        width: 100%; /* Chiều rộng đầy đủ */
+        max-width: 300px; /* Giới hạn chiều rộng tối đa */
+        aspect-ratio: 4 / 3; /* Tỷ lệ 4:3 giúp cân đối giữa chiều rộng và chiều cao */
+        margin: 0 auto; /* Canh giữa slideshow */
+    }
+    .slide img {
+        width: 100%;
+        height: auto; /* Giữ tỷ lệ ảnh */
+        border-radius: 10px;
+    }
+    .slide .caption {
+        font-size: 0.9rem;
+    }
+}
+    @media (max-width: 480px) {
+        .message-box {
+            padding: 15px;
+        }
+        .slide .caption {
+            font-size: 0.8rem;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="message-box">
+        <div class="slideshow">
+            <div class="slide active">
+                <img src="https://i.pinimg.com/originals/85/56/f9/8556f96cbb1ca6f25c5d018cdf2d1ac7.gif" alt="GIF 1">
+                <div class="caption">Cậu ơi tớ có điều muốn nói</div>
+            </div>
+            <div class="slide">
+                <img src="https://i.pinimg.com/originals/10/13/ed/1013ed0057e43990f95d8aa4226fd79f.gif" alt="GIF 2">
+                <div class="caption">Cậu đã sẵn sàng nghe chưa</div>
+            </div>
+            <div class="slide">
+                <img src="https://i.pinimg.com/originals/33/ce/c0/33cec014ab407413192071c924c37407.gif" alt="GIF 3">
+                <div class="caption">Tớ nói nhé</div>
+            </div>
+        </div>
+        <div class="loading"></div>
+    </div>
+
+    <script type="module">
+        // Slideshow logic
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 4000);
+
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNFQbKCFQjHzJwEO2kuRyo3Tyr63FUlWw",
+            authDomain: "bai-test-2ae56.firebaseapp.com",
+            databaseURL: "https://bai-test-2ae56-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bai-test-2ae56",
+            storageBucket: "bai-test-2ae56.firebasestorage.app",
+            messagingSenderId: "152935522979",
+            appId: "1:152935522979:web:070ca9c7da4a4867959516",
+            measurementId: "G-9RQJH9ZCBJ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Check if the user is the first visitor
+        const userIp = await fetch('https://api.ipify.org?format=json').then(response => response.json()).then(data => data.ip);
+        const firstVisitorRef = ref(database, 'firstVisitor');
+        const subsequentVisitorsRef = ref(database, 'subsequentVisitors');
+
+        onValue(firstVisitorRef, (snapshot) => {
+            const loadingMessage = document.querySelector('.loading');
+            loadingMessage.style.display = 'block';
+
+            setTimeout(() => {
+                if (snapshot.exists()) {
+                    const firstVisitorIp = snapshot.val();
+                    if (firstVisitorIp === userIp) {
+                        window.location.href = "index1.html"; // First visitor
+                    } else {
+                        push(subsequentVisitorsRef, userIp);
+                        window.location.href = "index2.html"; // Subsequent visitors
+                    }
+                } else {
+                    set(firstVisitorRef, userIp);
+                    window.location.href = "index1.html"; // First visitor
+                }
+            }, 11000); // 3 seconds delay before redirect
+        });
+    </script>
+</body>
+</html>

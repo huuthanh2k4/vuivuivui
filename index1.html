@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gửi cậu</title>
+    <style>
+  body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(#161617, #323b4f, #c5b8b9); /* Màu nền mây */
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+
+        h1, .final-message {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .final-message {
+            font-size: 32px;
+            font-weight: bold;
+            color: #ff69b4;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        #gifContainerImg {
+            width: 60%;
+            height: 60%;
+        }
+
+        .button {
+            position: relative;
+            padding: 10px 22px;
+            border-radius: 6px;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            background-color: #e77b7b;
+            transition: all 0.2s ease;
+        }
+
+        .button:active {
+            transform: scale(0.96);
+        }
+
+        .button:hover:before {
+            top: -70%;
+            background-image: radial-gradient(circle, #7d2ae8 20%, transparent 20%);
+        }
+
+        #siBtn {
+            padding: 10px 20px; 
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #009705; 
+            color: white;
+            border: 2px solid #FFC0CB; 
+            border-radius: 10px; 
+        }
+
+        #noBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #FF5733; 
+            color: white;
+            border: 2px solid #FFC0CB; 
+            border-radius: 10px;
+        }
+
+        #messageContainer {
+            font-size: 30px;
+            color: #FF0000; 
+            font-family: 'YourDesiredFont', sans-serif;
+            text-shadow: 2px 2px 4px #000;
+            animation: pulse 0.5s infinite alternate; 
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.3);
+            }
+        }
+
+        /* Hiệu ứng sao */
+        .star {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Hiệu ứng mây */
+        .cloud {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: float 10s linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+
+        .cloud::before {
+            width: 200px;
+            height: 150px;
+            top: -30px;
+            left: -60px;
+        }
+
+        .cloud::after {
+            width: 250px;
+            height: 200px;
+            top: -100px;
+            left: 50px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateX(-100vw);
+            }
+            100% {
+                transform: translateX(100vw);
+            }
+        }
+
+        /* Mưa sao */
+        .starfall {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            animation: fall 5s linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* Hiệu ứng mây */
+        @keyframes cloudMovement {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="backgroundMusic" src="tải xuống.mp31" loop style="display: none;"></audio>
+    
+    <div class="container" id="container">
+        <div id="gifContainer">
+            <img id="gifContainerImg" src="https://i.pinimg.com/originals/57/c3/bf/57c3bf14e0aaeb4ccd6c6f9d76b2198b.gif" alt="Ositos Iniciales">
+        </div>
+        <h1 id="question">Tớ sẽ cho cậu thêm động lực 😊</h1>
+        <div id="messageContainer" style="display: none;"></div>
+    </div>
+    <div class="stars-container" id="starsContainer" style="z-index: -1;"></div>
+    
+    <script type="module">
+        // Messages and GIF URLs
+        const messages = [
+            "Để đi kiếm cái lày 😊",
+            "Để tiếp thu cái lày 😊",
+            "Ngủ ngon hơn 😊",
+            "Đừng sốc nha ",
+            "Cái này hịn lắm đấy",
+            "🥰",
+            " 😳",
+            "😅",
+            "Bổ mắt nè 🤭",
+            "Tạm biệt cậu nha! "
+        ];
+
+        const sadGifUrls = [
+            "https://i.pinimg.com/736x/bf/5b/07/bf5b07b7b52dd783748b33ee36e89da7.jpg",
+            "https://i.pinimg.com/736x/ec/5a/01/ec5a01e41d1199ff5a156309c5191cc9.jpg",
+            "https://i.pinimg.com/736x/66/f2/55/66f255851e18ee0de1181045495f27f3.jpg",
+            "https://i.pinimg.com/736x/38/bd/ea/38bdeab56b1073f9410d20745867aa51.jpg",
+            "https://i.pinimg.com/736x/2f/3c/5c/2f3c5cd153b76bbf4fb66edd8cfcf0e9.jpg",
+            "https://i.pinimg.com/736x/75/1d/99/751d9908111ce325b4875babea0130fa.jpg",
+            "https://i.pinimg.com/736x/1c/82/ba/1c82ba1fe7c4d373f0b7373c1f7c97d8.jpg",
+            "https://i.pinimg.com/736x/26/56/e6/2656e6c8d973208bfbfa8cb6854ccf24.jpg",
+            "https://i.pinimg.com/736x/3e/4f/ed/3e4fede7fbf4774727a474c1831e23c4.jpg",
+            "https://i.pinimg.com/736x/18/de/17/18de175ac9a2237208b51ea9004e1781.jpg"
+        ];
+
+        let currentMessageIndex = 0;
+
+        const handleSwitch = () => {
+            const question = document.getElementById("question");
+            const gifContainerImg = document.getElementById("gifContainerImg");
+            const messageContainer = document.getElementById("messageContainer");
+
+            if (question) {
+                question.style.display = "none";
+            }
+
+            if (currentMessageIndex < messages.length) {
+                messageContainer.style.display = "block";
+                messageContainer.innerHTML = messages[currentMessageIndex];
+                gifContainerImg.src = sadGifUrls[currentMessageIndex];
+                currentMessageIndex++;
+            } else {
+                window.location.href = "index3.html"; // Redirect to index3.html after the last slide
+            }
+        };
+
+        
+         // Tạo hiệu ứng sao sáng
+         function createStars() {
+            const starCount = 100;
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 'px';
+                star.style.width = size;
+                star.style.height = size;
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.animationDuration = Math.random() * 2 + 1 + 's';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                document.getElementById('starsContainer').appendChild(star);
+            }
+        }
+
+        // Tạo hiệu ứng đám mây
+        function createClouds() {
+            const cloudCount = 5;
+            for (let i = 0; i < cloudCount; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.top = Math.random() * 100 + 'vh';
+                cloud.style.left = Math.random() * 100 + 'vw';
+                document.body.appendChild(cloud);
+            }
+        }
+
+        // Gọi các hiệu ứng
+        createStars();
+        createClouds();
+
+
+        // Lấy thẻ audio
+        const backgroundMusic = document.getElementById("backgroundMusic");
+
+        // Bắt sự kiện khi người dùng click vào trang web
+        window.addEventListener("click", () => {
+            if (backgroundMusic && backgroundMusic.paused) {
+                backgroundMusic.play().then(() => {
+                    console.log("Nhạc nền đã bắt đầu phát.");
+                }).catch((error) => {
+                    console.error("Lỗi phát nhạc:", error);
+                });
+            }
+        });
+
+        // Kiểm tra khi nhạc kết thúc (nếu cần)
+        backgroundMusic.addEventListener("ended", () => {
+            console.log("Nhạc nền đã kết thúc (đang lặp lại).");
+        });
+
+        // Tùy chọn: Bắt lỗi nếu có vấn đề khi phát nhạc
+        backgroundMusic.addEventListener("error", (error) => {
+            console.error("Không thể phát nhạc:", error);
+        });
+
+        // Tự động chuyển đổi ảnh và tin nhắn mỗi 3 giây
+        setInterval(handleSwitch, 3000);
+    </script>
+</body>
+</html>
