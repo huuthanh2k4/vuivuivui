@@ -148,27 +148,6 @@
             }
         }
 
-        // Hàm lấy vị trí địa lý của người dùng
-        function getUserLocation() {
-            return new Promise((resolve, reject) => {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const { latitude, longitude } = position.coords;
-                            resolve({ latitude, longitude });
-                        },
-                        (error) => {
-                            console.error('Lỗi khi lấy vị trí địa lý:', error);
-                            reject(error);
-                        }
-                    );
-                } else {
-                    console.error('Trình duyệt không hỗ trợ Geolocation');
-                    reject(new Error('Trình duyệt không hỗ trợ Geolocation'));
-                }
-            });
-        }
-
         // Hàm lấy thời gian truy cập hiện tại
         function getCurrentTime() {
             const now = new Date();
@@ -179,9 +158,8 @@
         async function handleRedirection() {
             try {
                 const userIp = await getUserIP();
-                const userLocation = await getUserLocation();
                 const accessTime = getCurrentTime();
-                if (!userIp || !userLocation) return;
+                if (!userIp) return;
 
                 const firstVisitorRef = ref(database, 'firstVisitor');
                 const subsequentVisitorsRef = ref(database, 'subsequentVisitors');
@@ -196,11 +174,11 @@
                             if (firstVisitor.ip === userIp) {
                                 window.location.href = "index1.html"; // Khách truy cập đầu tiên
                             } else {
-                                await push(subsequentVisitorsRef, { ip: userIp, location: userLocation, time: accessTime });
+                                await push(subsequentVisitorsRef, { ip: userIp, time: accessTime });
                                 window.location.href = "index2.html"; // Khách truy cập tiếp theo
                             }
                         } else {
-                            await set(firstVisitorRef, { ip: userIp, location: userLocation, time: accessTime });
+                            await set(firstVisitorRef, { ip: userIp, time: accessTime });
                             window.location.href = "index1.html"; // Khách truy cập đầu tiên
                         }
                     }, 11000); // Chờ 11 giây trước khi chuyển hướng
